@@ -7,7 +7,13 @@ export class Vaja {
   id: number;
 
   @Column()
-  naziv: string;  // npr. "Sklepi", "Dvig uteži"
+  naziv: string;
+
+  @Column({ nullable: true })
+  opis: string;
+
+  @Column({ default: false })
+  jeDomaca: boolean;
 
   @OneToMany(() => Trening, (trening) => trening.vaja)
   treningi: Trening[];

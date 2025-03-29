@@ -11,7 +11,10 @@ export class Trening {
   datum: Date;
 
   @Column()
-  trajanje: number;  // V minutah
+  trajanje: number; // V minutah
+
+  @Column({ nullable: true })
+  opomba: string;
 
   @ManyToOne(() => Uporabnik, (uporabnik) => uporabnik.treningi)
   uporabnik: Uporabnik;

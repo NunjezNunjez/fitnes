@@ -10,7 +10,10 @@ export class Uporabnik {
   email: string;
 
   @Column()
-  geslo: string;  // Geslo bo hash-ano (ne shranjujemo čistega teksta!)
+  ime: string;
+
+  @Column()
+  geslo: string; // Geslo bo hash-ano
 
   @OneToMany(() => Trening, (trening) => trening.uporabnik)
   treningi: Trening[];
