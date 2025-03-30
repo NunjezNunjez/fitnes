@@ -7,7 +7,7 @@ export class Trening {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'date' })
   datum: Date;
 
   @Column()

@@ -12,9 +12,6 @@ export class Vaja {
   @Column({ nullable: true })
   opis: string;
 
-  @Column({ default: false })
-  jeDomaca: boolean;
-
   @OneToMany(() => Trening, (trening) => trening.vaja)
   treningi: Trening[];
 }
