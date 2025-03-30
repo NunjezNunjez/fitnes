@@ -1,0 +1,32 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UporabnikModule } from './uporabnik/uporabnik.module';
+import { TreningModule } from './trening/trening.module';
+import { VajaModule } from './vaja/vaja.module';
+import { AuthModule } from './auth/auth.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'postgres',
+      database: 'fitnes2',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+      logging: true, // Dodajte to vrstico za debug
+    }),
+    AuthModule,
+    UporabnikModule,
+    TreningModule,
+    VajaModule,
+
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
