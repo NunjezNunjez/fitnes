@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserRegisterDto } from './user-register.dto';
 import { UserLoginDto } from './user-login.dto';
@@ -9,11 +9,20 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto) {
-    return await this.authService.register(userRegisterDto);
+    try {
+      const user = await this.authService.register(userRegisterDto);
+      return { message: 'Uporabnik uspešno registriran', userId: user.id };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.CONFLICT);
+    }
   }
 
   @Post('login')
   async login(@Body() userLoginDto: UserLoginDto) {
-    return await this.authService.login(userLoginDto);
+    const token = await this.authService.login(userLoginDto);
+    if (!token) {
+      throw new HttpException('Napačen email ali geslo', HttpStatus.UNAUTHORIZED);
+    }
+    return { token };
   }
 }

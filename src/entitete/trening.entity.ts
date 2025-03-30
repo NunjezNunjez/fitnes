@@ -11,7 +11,7 @@ export class Trening {
   datum: Date;
 
   @Column()
-  trajanje: number; // V minutah
+  trajanje: number;
 
   @Column({ nullable: true })
   opomba: string;

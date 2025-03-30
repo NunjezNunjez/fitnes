@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Uporabnik } from '../entitete/uporabnik.entity';
 import { UserRegisterDto } from './user-register.dto';
 import { UserLoginDto } from './user-login.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -17,23 +16,33 @@ export class AuthService {
   ) {}
 
   async register(userData: UserRegisterDto): Promise<Uporabnik> {
+    const existingUser = await this.uporabnikRepository.findOne({ where: { email: userData.email } });
+    if (existingUser) {
+      throw new Error('Uporabnik s tem emailom že obstaja');
+    }
     const hash = await bcrypt.hash(userData.geslo, 10);
-    const novUporabnik = this.uporabnikRepository.create({
+    const newUser = this.uporabnikRepository.create({
       email: userData.email,
+      ime: userData.email, // ali uporabniško ime, če je na voljo
       geslo: hash,
     });
-    return this.uporabnikRepository.save(novUporabnik);
+    return this.uporabnikRepository.save(newUser);
   }
 
   async login(userData: UserLoginDto): Promise<string | null> {
-    const uporabnik = await this.uporabnikRepository.findOne({
-      where: { email: userData.email },
-    });
-    if (!uporabnik) return null;
+    const user = await this.uporabnikRepository.findOne({ where: { email: userData.email } });
+    if (!user) return null;
+    const isPasswordValid = await bcrypt.compare(userData.geslo, user.geslo);
+    if (!isPasswordValid) return null;
+    return this.ustvariToken(user);
+  }
 
-    const jeGesloPravilno = await bcrypt.compare(userData.geslo, uporabnik.geslo);
-    if (!jeGesloPravilno) return null;
-
-    return this.jwtService.sign({ id: uporabnik.id });
+  ustvariToken(user: Uporabnik): string {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: 'user',
+    };
+    return this.jwtService.sign(payload);
   }
 }

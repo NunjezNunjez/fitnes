@@ -21,9 +21,8 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'vaš_zelo_varen_ključ_min_32_znakov' // ENOTEN KLJUČ!
+        secret: 'vaš_zelo_varen_ključ_min_32_znakov',
       });
-
       this.logger.debug(`Token payload: ${JSON.stringify(payload)}`);
 
       (request as any).user = payload;
@@ -35,8 +34,11 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    if (type !== 'Bearer') {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) return undefined;
+
+    const [type, token] = authHeader.split(' ');
+    if (!type || type.toLowerCase() !== 'bearer') {
       this.logger.warn(`Napačna avtorizacijska shema: ${type}`);
       return undefined;
     }

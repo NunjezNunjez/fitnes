@@ -1,9 +1,11 @@
+// src/trening/trening.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Trening } from '../entitete/trening.entity';
 import { Uporabnik } from '../entitete/uporabnik.entity';
 import { Vaja } from '../entitete/vaja.entity';
+import { UstvariTreningDto } from './dto/ustvari-trening.dto';
 
 @Injectable()
 export class TreningService {
@@ -16,17 +18,14 @@ export class TreningService {
 
   async ustvariTrening(
     uporabnik: Uporabnik,
-    ustvariTreningDto: { datum: Date; trajanje: number; vajaId: number; opomba?: string },
+    ustvariTreningDto: UstvariTreningDto,
   ): Promise<Trening> {
     const vaja = await this.vajaRepository.findOne({
       where: { id: ustvariTreningDto.vajaId },
-      relations: ['treningi']
     });
-
     if (!vaja) {
       throw new NotFoundException('Vaja ne obstaja');
     }
-
     const trening = this.treningRepository.create({
       datum: ustvariTreningDto.datum,
       trajanje: ustvariTreningDto.trajanje,
@@ -34,7 +33,6 @@ export class TreningService {
       uporabnik,
       vaja,
     });
-
     return this.treningRepository.save(trening);
   }
 

@@ -1,3 +1,4 @@
+// src/trening/trening.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Trening } from '../entitete/trening.entity';
@@ -13,7 +14,7 @@ import { UporabnikModule } from '../uporabnik/uporabnik.module';
     TypeOrmModule.forFeature([Trening, Vaja]),
     VajaModule,
     AuthModule,
-    UporabnikModule, // Dodajte ta import
+    UporabnikModule,
   ],
   providers: [TreningService],
   controllers: [TreningController],

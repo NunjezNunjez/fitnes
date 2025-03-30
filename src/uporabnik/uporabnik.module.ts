@@ -9,9 +9,10 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Uporabnik]),
+    // Registriramo enak ključ, kot v AuthModule
     JwtModule.register({
-      secret: 'tajniKljuc', // V produkciji uporabite pravi skriti ključ!
-      signOptions: { expiresIn: '1h' },
+      secret: 'vaš_zelo_varen_ključ_min_32_znakov',
+      signOptions: { expiresIn: '24h' },
     }),
   ],
   providers: [UporabnikService, AuthService],

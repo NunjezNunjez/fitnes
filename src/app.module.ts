@@ -6,6 +6,9 @@ import { VajaModule } from './vaja/vaja.module';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Trening } from './entitete/trening.entity';
+import { Uporabnik } from './entitete/uporabnik.entity';
+import { Vaja } from './entitete/vaja.entity';
 
 @Module({
   imports: [
@@ -16,15 +19,14 @@ import { AppService } from './app.service';
       username: 'postgres',
       password: 'postgres',
       database: 'fitnes2',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [Trening, Uporabnik, Vaja],
       synchronize: true,
-      logging: true, // Dodajte to vrstico za debug
+      logging: true,
     }),
     AuthModule,
     UporabnikModule,
     TreningModule,
     VajaModule,
-
   ],
   controllers: [AppController],
   providers: [AppService],

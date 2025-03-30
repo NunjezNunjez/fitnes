@@ -13,7 +13,7 @@ export class Uporabnik {
   ime: string;
 
   @Column()
-  geslo: string; // Geslo bo hash-ano
+  geslo: string;
 
   @OneToMany(() => Trening, (trening) => trening.uporabnik)
   treningi: Trening[];
