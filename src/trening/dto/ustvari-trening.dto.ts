@@ -2,6 +2,6 @@
 export class UstvariTreningDto {
   datum: Date;
   trajanje: number;
-  vajaId: number;
+  vajaIDs: number[];
   opomba?: string;
 }

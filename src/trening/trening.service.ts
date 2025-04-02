@@ -1,7 +1,6 @@
-// src/trening/trening.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Trening } from '../entitete/trening.entity';
 import { Uporabnik } from '../entitete/uporabnik.entity';
 import { Vaja } from '../entitete/vaja.entity';
@@ -20,20 +19,38 @@ export class TreningService {
     uporabnik: Uporabnik,
     ustvariTreningDto: UstvariTreningDto,
   ): Promise<Trening> {
-    const vaja = await this.vajaRepository.findOne({
-      where: { id: ustvariTreningDto.vajaId },
+    // Poiščemo vaje, ki ustrezajo ID-jem iz DTO
+    const vaje = await this.vajaRepository.find({
+      where: { id: In(ustvariTreningDto.vajaIDs) },
     });
-    if (!vaja) {
-      throw new NotFoundException('Vaja ne obstaja');
+
+    if (!vaje || vaje.length === 0) {
+      throw new NotFoundException('Nobena vaja ni bila najdena');
     }
+
+    // Če datum pride kot string, ga pretvorimo v Date
+    const datum = new Date(ustvariTreningDto.datum);
+
     const trening = this.treningRepository.create({
-      datum: ustvariTreningDto.datum,
+      datum,
       trajanje: ustvariTreningDto.trajanje,
       opomba: ustvariTreningDto.opomba,
       uporabnik,
-      vaja,
+      // Ker je relacija Many-to-Many, shranimo polje vaj
+      vaja: vaje,
     });
+
     return this.treningRepository.save(trening);
+  }
+  async izbrisiTrening(treningId: number, uporabnikId: number): Promise<void> {
+    // Najprej preveri, ali trening pripada uporabniku, da preprečiš brisanje tujih treningov
+    const trening = await this.treningRepository.findOne({
+      where: { id: treningId, uporabnik: { id: uporabnikId } },
+    });
+    if (!trening) {
+      throw new NotFoundException('Trening ne obstaja ali ni dostopen');
+    }
+    await this.treningRepository.remove(trening);
   }
 
   async vrniVseTreningeUporabnika(uporabnikId: number): Promise<Trening[]> {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vaja } from '../entitete/vaja.entity';
@@ -18,4 +18,31 @@ export class VajaService {
   async vrniVseVaje(): Promise<Vaja[]> {
     return this.vajaRepository.find();
   }
+
+  async posodobiVajo(id: number, updateData: Partial<Vaja>): Promise<Vaja> {
+    const vaja = await this.vajaRepository.findOne({ where: { id } });
+    if (!vaja) {
+      throw new NotFoundException('Vaja ne obstaja');
+    }
+    const posodobljenaVaja = this.vajaRepository.merge(vaja, updateData);
+    return this.vajaRepository.save(posodobljenaVaja);
+  }
+
+  async vrniVajo(id: number): Promise<Vaja> {
+    const vaja = await this.vajaRepository.findOne({ where: { id } });
+    if (!vaja) {
+      throw new NotFoundException('Vaja ne obstaja');
+    }
+    return vaja;
+  }
+
+  async izbrisiVajo(id: number): Promise<boolean> {
+    const vaja = await this.vajaRepository.findOne({ where: { id } });
+    if (!vaja) {
+      throw new NotFoundException('Vaja ne obstaja');
+    }
+    await this.vajaRepository.remove(vaja);
+    return true;
+  }
+
 }

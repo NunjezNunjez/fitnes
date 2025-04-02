@@ -1,5 +1,5 @@
 // src/trening/trening.controller.ts
-import { Controller, Post, Body, Get, UseGuards, Req, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req, NotFoundException, Delete, Param } from '@nestjs/common';
 import { TreningService } from './trening.service';
 import { UstvariTreningDto } from './dto/ustvari-trening.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -30,6 +30,7 @@ export class TreningController {
     return this.treningService.ustvariTrening(uporabnik, ustvariTreningDto);
   }
 
+
   @Get()
   async vrniTreninge(@Req() req: Request) {
     const user = (req as any).user;
@@ -38,4 +39,15 @@ export class TreningController {
     }
     return this.treningService.vrniVseTreningeUporabnika(user.id);
   }
+  @Delete(':id')
+  async izbrisiTrening(@Param('id') id: number, @Req() req: Request) {
+    const user = (req as any).user;
+    if (!user) {
+      throw new NotFoundException('Uporabnik ni najden');
+    }
+    // Dodaj logiko brisanja treninga, npr. klic servisne metode
+    return this.treningService.izbrisiTrening(id, user.id);
+  }
+
+
 }
