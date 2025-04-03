@@ -19,31 +19,27 @@ export class TreningService {
     uporabnik: Uporabnik,
     ustvariTreningDto: UstvariTreningDto,
   ): Promise<Trening> {
-    // Poiščemo vaje, ki ustrezajo ID-jem iz DTO
-    const vaje = await this.vajaRepository.find({
+    const vaje = await this.vajaRepository.find({ // Poisce vaje ki ustrezajo ID-jem iz DTO
       where: { id: In(ustvariTreningDto.vajaIDs) },
     });
 
     if (!vaje || vaje.length === 0) {
       throw new NotFoundException('Nobena vaja ni bila najdena');
     }
-
-    // Če datum pride kot string, ga pretvorimo v Date
-    const datum = new Date(ustvariTreningDto.datum);
+    const datum = new Date(ustvariTreningDto.datum); //ce pride datum kot strin , se pretvori v date
 
     const trening = this.treningRepository.create({
       datum,
       trajanje: ustvariTreningDto.trajanje,
       opomba: ustvariTreningDto.opomba,
       uporabnik,
-      // Ker je relacija Many-to-Many, shranimo polje vaj
       vaja: vaje,
     });
 
     return this.treningRepository.save(trening);
   }
   async izbrisiTrening(treningId: number, uporabnikId: number): Promise<void> {
-    // Najprej preveri, ali trening pripada uporabniku, da preprečiš brisanje tujih treningov
+    // preveri ali trening pripada uporabniku se prepreci brisanje tujih treningov
     const trening = await this.treningRepository.findOne({
       where: { id: treningId, uporabnik: { id: uporabnikId } },
     });

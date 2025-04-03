@@ -4,28 +4,28 @@ import { Request } from 'express';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  private readonly logger = new Logger(JwtAuthGuard.name);
-
+  private readonly logger = new Logger(JwtAuthGuard.name);  //Za belezenje dogodkov
   constructor(private readonly jwtService: JwtService) {}
-
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
+
     const token = this.extractTokenFromHeader(request);
 
-    this.logger.debug(`Preverjam token: ${token}`);
 
+    this.logger.debug(`Preverjam token: ${token}`);
     if (!token) {
       this.logger.warn('Zahteva brez tokena');
       throw new UnauthorizedException('Ni avtorizacijskega tokena');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const payload = await this.jwtService.verifyAsync(token, { // Verificira token s skrivnim kljucem
         secret: 'vaš_zelo_varen_ključ_min_32_znakov',
       });
-      this.logger.debug(`Token payload: ${JSON.stringify(payload)}`);
 
-      (request as any).user = payload;
+      this.logger.debug(`Token payload: ${JSON.stringify(payload)}`);
+      (request as any).user = payload; // Doda uporabnika v zahtevo
+
       return true;
     } catch (error) {
       this.logger.error(`Napaka pri verifikaciji: ${error.message}`);
@@ -33,11 +33,13 @@ export class JwtAuthGuard implements CanActivate {
     }
   }
 
+  // Pomozna metoda za pridobivanje tokena iz glave
   private extractTokenFromHeader(request: Request): string | undefined {
     const authHeader = request.headers.authorization;
-    if (!authHeader) return undefined;
 
+    if (!authHeader) return undefined;
     const [type, token] = authHeader.split(' ');
+
     if (!type || type.toLowerCase() !== 'bearer') {
       this.logger.warn(`Napačna avtorizacijska shema: ${type}`);
       return undefined;

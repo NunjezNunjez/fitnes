@@ -11,14 +11,16 @@ export class UporabnikController {
     private readonly authService: AuthService,
   ) {}
 
+  //  Registracija novega uporabnika
   @Post('register')
   async register(@Body() registerDto: RegisterDto, @Res() res) {
     try {
-      const uporabnik = await this.uporabnikService.ustvariUporabnika(
+      const uporabnik = await this.uporabnikService.ustvariUporabnika( // Ustvari novega uporabnika preko servisa
         registerDto.email,
         registerDto.ime,
         registerDto.geslo,
       );
+
       return res.status(HttpStatus.CREATED).json({
         message: 'Uporabnik uspešno registriran',
         id: uporabnik.id,
@@ -28,20 +30,20 @@ export class UporabnikController {
     }
   }
 
+  // Prijava obstoječega uporabnika
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res) {
-    const uporabnik = await this.uporabnikService.najdiPoEmailu(loginDto.email);
+    const uporabnik = await this.uporabnikService.najdiPoEmailu(loginDto.email); // Najde uporabnika po emailu
     if (!uporabnik) {
       return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Napačen email ali geslo' });
     }
 
+    // Preveri ujemanje gesla
     const jeGesloPravilno = await this.uporabnikService.preveriGeslo(uporabnik, loginDto.geslo);
     if (!jeGesloPravilno) {
       return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Napačen email ali geslo' });
     }
-
-    // Uporabimo authService, da ustvarimo JWT
-    const token = this.authService.ustvariToken(uporabnik);
+    const token = this.authService.ustvariToken(uporabnik);    // Ustvari JWT žeton za avtentikacijo
     return res.status(HttpStatus.OK).json({ token });
   }
 }
