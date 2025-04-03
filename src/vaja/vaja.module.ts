@@ -4,12 +4,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vaja } from '../entitete/vaja.entity';
 import { VajaService } from './vaja.service';
 import { VajaController } from './vaja.controller';
-import { AuthModule } from '../auth/auth.module'; // Ključno: uvoz AuthModule
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Vaja]),
-    AuthModule, // <-- Dodaj to, da bo JwtService in JwtAuthGuard na voljo
+    AuthModule,
   ],
   providers: [VajaService],
   controllers: [VajaController],
